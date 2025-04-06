@@ -7,7 +7,7 @@ imgsz = 640
 model = YOLO("yolo11n.pt")
 
 model.train(
-        data="/data.yaml",
+        data="data.yaml",
         workers=4,
         epochs=num_epochs,
         imgsz=imgsz,
