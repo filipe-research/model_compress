@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 
 # Carrega o modelo treinado
-model = YOLO('/home/pesquisador/pesquisa/filipe/model_compress/runs/train/yolo11_oxford_tower_custom_train7/best.pt')
+model = YOLO('/home/pesquisador/pesquisa/filipe/model_compress/runs/train/yolo11_oxford_tower_custom_train7/weights/best.pt')
 
 # Avalia o modelo utilizando o conjunto de teste
 results = model.val(data='data.yaml', split='test')
