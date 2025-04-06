@@ -1,7 +1,7 @@
-path: dataset  # opcional, se os caminhos forem relativos
-train: images/train
-val: images/val
-test: images/test
+# path: dataset  # opcional, se os caminhos forem relativos
+train: dataset/images/train
+val: dataset/images/val
+test: dataset/images/test
 
 nc: 1
 names: ['pessoa']
