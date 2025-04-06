@@ -1,13 +1,16 @@
 from ultralytics import YOLO
 import torch
 
+num_epochs = 100
+imgsz = 640
+
 model = YOLO("yolo11n.pt")
 
 model.train(
-        data=dataset_path + "/data.yaml",
+        data="/data.yaml",
         workers=4,
-        epochs=100,
-        imgsz=640,
+        epochs=num_epochs,
+        imgsz=imgsz,
         batch=16,
         device=0 ,
         project="runs/train",
