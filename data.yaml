@@ -1,0 +1,6 @@
+path: dataset  # opcional, se os caminhos forem relativos
+train: images/train
+val: images/val
+
+nc: 1
+names: ['pessoa']
