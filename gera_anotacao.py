@@ -12,10 +12,10 @@ import cv2
 from sklearn.model_selection import train_test_split
 
 # === CONFIGURAÇÕES ===
-VIDEO_PATH = "dataset/TownCentreXVID.mp4"  # troque para o caminho do seu vídeo
-ANNOTATIONS_PATH = "dataset/annotations.txt"
-FINAL_SIZE = 640
+VIDEO_PATH = "datasets/TownCentreXVID.mp4"  # troque para o caminho do seu vídeo
+ANNOTATIONS_PATH = "datasets/annotations.txt"
 CLASS_ID = 0  # pessoa
+FRAME_STEP = 50
 
 # import pdb; pdb.set_trace()
 
@@ -59,12 +59,17 @@ for split in ['train', 'val', 'test']:
 # === AGRUPA ANOTAÇÕES POR FRAME ===
 grouped = df.groupby("frame")
 
-# === ABRE O VÍDEO E EXTRAI FRAMES ===
+
+# ABRE O VÍDEO E OBTÉM RESOLUÇÃO ORIGINAL
 cap = cv2.VideoCapture(VIDEO_PATH)
 total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+original_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+original_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+print(f"Resolução original do vídeo: {original_width}x{original_height}")
 
 # for frame_id in range(total_frames):
-for frame_id in range(0, total_frames, 50):  # pula de 50 em 50 frames
+for frame_id in range(0, total_frames, FRAME_STEP):  # pula de 50 em 50 frames
     if frame_id not in grouped.groups:
         continue  # pula frames sem anotação válida
 
@@ -74,27 +79,28 @@ for frame_id in range(0, total_frames, 50):  # pula de 50 em 50 frames
         print(f"Erro ao ler frame {frame_id}")
         continue
 
-    # Redimensiona
-    resized = cv2.resize(frame, (FINAL_SIZE, FINAL_SIZE))
 
     frame_annotations = grouped.get_group(frame_id)
     split = frame_annotations.iloc[0]["split"]
     filename = f"{frame_id:06d}.jpg"
-    label_path = f"dataset/labels/{split}/{filename.replace('.jpg', '.txt')}"
-    image_path = f"dataset/images/{split}/{filename}"
+    label_path = f"datasets/labels/{split}/{filename.replace('.jpg', '.txt')}"
+    image_path = f"datasets/images/{split}/{filename}"
 
     # Salva imagem
-    cv2.imwrite(image_path, resized)
+    cv2.imwrite(image_path, frame)
 
     # Salva anotação YOLO
     with open(label_path, 'w') as f:
         for _, row in frame_annotations.iterrows():
-            x_center = ((row["body_left"] + row["body_right"]) / 2) / FINAL_SIZE
-            y_center = ((row["body_top"] + row["body_bottom"]) / 2) / FINAL_SIZE
-            width = (row["body_right"] - row["body_left"]) / FINAL_SIZE
-            height = (row["body_bottom"] - row["body_top"]) / FINAL_SIZE
+            x_center = ((row["body_left"] + row["body_right"]) / 2) / original_width
+            y_center = ((row["body_top"] + row["body_bottom"]) / 2) / original_height
+            width = (row["body_right"] - row["body_left"]) / original_width
+            height = (row["body_bottom"] - row["body_top"]) / original_height
 
-            f.write(f"{CLASS_ID} {x_center:.6f} {y_center:.6f} {width:.6f} {height:.6f}\n")
+            if 0 <= x_center <= 1 and 0 <= y_center <= 1 and 0 <= width <= 1 and 0 <= height <= 1:
+                f.write(f"{CLASS_ID} {x_center:.6f} {y_center:.6f} {width:.6f} {height:.6f}\n")
+            else:
+                print(f"Anotação ignorada (fora do intervalo): frame {frame_id}")
 
 cap.release()
 print("Extração de imagens e geração de anotações finalizadas!")
