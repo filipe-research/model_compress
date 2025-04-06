@@ -53,8 +53,8 @@ df["split"] = df["person_id"].apply(get_split)
 
 # === CRIA DIRETÓRIOS ===
 for split in ['train', 'val', 'test']:
-    os.makedirs(f"dataset/images/{split}", exist_ok=True)
-    os.makedirs(f"dataset/labels/{split}", exist_ok=True)
+    os.makedirs(f"datasets/images/{split}", exist_ok=True)
+    os.makedirs(f"datasets/labels/{split}", exist_ok=True)
 
 # === AGRUPA ANOTAÇÕES POR FRAME ===
 grouped = df.groupby("frame")
@@ -92,15 +92,27 @@ for frame_id in range(0, total_frames, FRAME_STEP):  # pula de 50 em 50 frames
     # Salva anotação YOLO
     with open(label_path, 'w') as f:
         for _, row in frame_annotations.iterrows():
-            x_center = ((row["body_left"] + row["body_right"]) / 2) / original_width
-            y_center = ((row["body_top"] + row["body_bottom"]) / 2) / original_height
-            width = (row["body_right"] - row["body_left"]) / original_width
-            height = (row["body_bottom"] - row["body_top"]) / original_height
+            # Limita bounding box aos limites da imagem
+            left = max(0, min(original_width, row["body_left"]))
+            right = max(0, min(original_width, row["body_right"]))
+            top = max(0, min(original_height, row["body_top"]))
+            bottom = max(0, min(original_height, row["body_bottom"]))
 
-            if 0 <= x_center <= 1 and 0 <= y_center <= 1 and 0 <= width <= 1 and 0 <= height <= 1:
+            # Garante ordem correta
+            left, right = sorted([left, right])
+            top, bottom = sorted([top, bottom])
+
+            # Calcula coordenadas normalizadas
+            x_center = ((left + right) / 2) / original_width
+            y_center = ((top + bottom) / 2) / original_height
+            width = (right - left) / original_width
+            height = (bottom - top) / original_height
+
+            # Apenas salva se a bbox tiver área > 0
+            if width > 0 and height > 0:
                 f.write(f"{CLASS_ID} {x_center:.6f} {y_center:.6f} {width:.6f} {height:.6f}\n")
             else:
-                print(f"Anotação ignorada (fora do intervalo): frame {frame_id}")
+                print(f"Anotação descartada por largura/altura nula: frame {frame_id}")
 
 cap.release()
 print("Extração de imagens e geração de anotações finalizadas!")
