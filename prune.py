@@ -18,11 +18,14 @@ from ptflops import get_model_complexity_info
     
 #     return model
 
+# def count_parameters(model):
+#     # return sum(p.numel() for p in model.parameters() if p.requires_grad)
+#     num = sum(p.numel() for p in model.parameters())
+#     print(f"Total parameters: {num:,}")
+#     return num
+
 def count_parameters(model):
-    # return sum(p.numel() for p in model.parameters() if p.requires_grad)
-    num = sum(p.numel() for p in model.parameters())
-    print(f"Total parameters: {num:,}")
-    return num
+    return sum(p.numel() for p in model.parameters())
 
 def prune_backbone(backbone, example_inputs, amount=0.5):
     backbone.eval()
@@ -118,7 +121,9 @@ def main():
     backbone = torch_model.model[0]
 
     print("\n--- Metrics before pruning ---")
-    print(f"Parameters: {count_parameters(backbone):,}")
+    # print(f"Parameters: {count_parameters(backbone):,}")
+    params_before = count_parameters(backbone)
+    print(f"Total parameters before pruning: {params_before:,}")
     count_flops(backbone)
     measure_memory(backbone.to(device), example_input)
 
@@ -127,7 +132,9 @@ def main():
     print('✅ Backbone pruned.')
 
     print("\n--- Metrics after pruning ---")
-    print(f"Parameters: {count_parameters(pruned_backbone):,}")
+    # print(f"Parameters: {count_parameters(pruned_backbone):,}")
+    params_after = count_parameters(pruned_backbone)
+    print(f"Total parameters after pruning: {params_after:,}")
     count_flops(pruned_backbone)
     measure_memory(pruned_backbone.to(device), example_input)
 
