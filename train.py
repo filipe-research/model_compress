@@ -4,7 +4,7 @@ import torch
 num_epochs = 100
 imgsz = 640
 
-model = YOLO("yolo11n.pt")
+model = YOLO("yolo11m.pt")
 
 model.train(
         data="./data.yaml",
