@@ -101,11 +101,11 @@ def main():
     # prune.ln_structured(module, name='weight', amount=0.5, n=2, dim=0)  # remove 50% dos filtros
     print('Model pruned.')
 
-    model.model = pruned_torch_model
+    # model.model = pruned_torch_model
 
-    print('Saving pruned model...')
-    model.save('pruned_trained_by_yolo11x.pt')
-    print('Pruned model saved.')
+    # print('Saving pruned model...')
+    # model.save('pruned_trained_by_yolo11x.pt')
+    # print('Pruned model saved.')
 
     # model = YOLO('pruned_trained_by_yolo11x.pt')
 
@@ -117,10 +117,9 @@ def main():
     # print('TorchScript export complete.')
 
     # results = model.val(data='data.yaml')
-    results = model.val(data='data.yaml', split='test')
-    # print(f'Pruned mAP50-95 {(results.box.map * 100)} %'
-    print(f"mAP50: {results.box.map50:.4f}")
-    print(f"mAP50-95: {results.box.map:.4f}")
+    # results = model.val(data='data.yaml', split='test')
+    # print(f"mAP50: {results.box.map50:.4f}")
+    # print(f"mAP50-95: {results.box.map:.4f}")
 
     
 
