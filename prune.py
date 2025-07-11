@@ -8,9 +8,11 @@ def prune_model(model, amount=0.3):
     
     for name, module in detection_model.named_modules():
         if isinstance(module, torch.nn.Conv2d):
-            prune.l1_unstructured(module, name='weight', amount=amount)
+            # prune.l1_unstructured(module, name='weight', amount=amount)
+            prune.ln_structured(module, name='weight', amount=0.5, n=2, dim=0)  # remove 50% dos filtros
             prune.remove(module, 'weight')
-            print(f"Pruned layer: {name}")
+            # print(f"Pruned layer: {name}")
+            print(f"Structured-pruned layer: {name}")
     
     return model
 
@@ -31,6 +33,7 @@ def main():
 
     print('Pruing model...')
     pruned_torch_model = prune_model(torch_model, amount=0.15)
+    # prune.ln_structured(module, name='weight', amount=0.5, n=2, dim=0)  # remove 50% dos filtros
     print('Model pruned.')
 
     model.model = pruned_torch_model
