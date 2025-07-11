@@ -19,20 +19,22 @@ import torch_pruning as tp
 
 def prune_yolo_model(model, example_inputs, amount=0.5):
     model.eval()
+
     DG = tp.DependencyGraph().build_dependency(model, example_inputs=example_inputs)
 
     for m in model.modules():
         if isinstance(m, torch.nn.Conv2d):
-            plan = DG.get_pruning_plan(
+            # Cria o pruning group com a nova API
+            pruning_group = DG.get_pruning_group(
                 m,
                 tp.prune_conv_out_channel,
-                amount=amount,           # Fração a remover
-                strategy="ln_structured",  # Estratégia integrada
-                n=2,                       # L2 norm
-                dim=0                      # Remove filtros (saída)
+                amount=amount,
+                strategy="ln_structured",
+                n=2,
+                dim=0
             )
-            if plan is not None:
-                plan.exec()
+            if pruning_group is not None:
+                pruning_group.prune()
                 print(f"Pruned layer: {m}")
     return model
 
