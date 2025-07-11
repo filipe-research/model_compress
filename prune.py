@@ -22,26 +22,20 @@ def prune_yolo_model(model, example_inputs, amount=0.5):
 
     DG = tp.DependencyGraph().build_dependency(model, example_inputs=example_inputs)
 
+    # Defina a estratégia de pruning (L2 norm, estruturado)
+    strategy = tp.strategy.LNStrategy(amount=amount, n=2, dim=0)
+
     for m in model.modules():
         if isinstance(m, torch.nn.Conv2d):
-            # NOVA forma: usar norm_based_pruning
-            pruning_idxs = tp.norm_based_pruning(
-                m.weight,
-                amount=amount,
-                p=2,
-                dim=0
-            )
-            if pruning_idxs.numel() == 0:
-                continue
-
             pruning_group = DG.get_pruning_group(
                 m,
                 tp.prune_conv_out_channels,
-                idxs=pruning_idxs
+                strategy=strategy
             )
             if pruning_group is not None:
                 pruning_group.prune()
                 print(f"Pruned layer: {m}")
+
     return model
 
 def main():
