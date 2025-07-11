@@ -24,14 +24,21 @@ def prune_yolo_model(model, example_inputs, amount=0.5):
 
     for m in model.modules():
         if isinstance(m, torch.nn.Conv2d):
-            # Cria o pruning group com a nova API
+            # 1️⃣ Calcular índices dos canais a remover
+            pruning_idxs = tp.utils.group_norm_pruning(
+                m.weight,
+                amount=amount,
+                n=2,
+                dim=0
+            )
+            if pruning_idxs.numel() == 0:
+                continue
+
+            # 2️⃣ Criar grupo de pruning com índices prontos
             pruning_group = DG.get_pruning_group(
                 m,
                 tp.prune_conv_out_channels,
-                amount=amount,
-                strategy="ln_structured",
-                n=2,
-                dim=0
+                idxs=pruning_idxs
             )
             if pruning_group is not None:
                 pruning_group.prune()
