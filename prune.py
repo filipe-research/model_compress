@@ -17,6 +17,23 @@ import torch_pruning as tp
     
 #     return model
 
+def count_parameters(model):
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+def count_flops(model, example_input):
+    flops = tp.utils.count_ops(model, example_input)
+    print(f"Total FLOPs: {flops / 1e9:.2f} GFLOPs")
+
+def measure_memory(model, example_input):
+    import gc
+    torch.cuda.empty_cache()
+    gc.collect()
+    with torch.no_grad():
+        torch.cuda.reset_peak_memory_stats()
+        model(example_input)
+        peak = torch.cuda.max_memory_allocated() / 1024**2
+    print(f"Peak GPU memory: {peak:.2f} MB")
+
 def prune_yolo_model(model, example_inputs, amount=0.5):
     model.eval()
 
@@ -74,12 +91,26 @@ def main():
     traced_model = torch.jit.trace(pruned_torch_model.to(device), example_input)
     traced_model.save('pruned_trained_by_yolo11x_scripted.pt')
     print('TorchScript export complete.')
-    
+
     # results = model.val(data='data.yaml')
     results = model.val(data='data.yaml', split='test')
     # print(f'Pruned mAP50-95 {(results.box.map * 100)} %'
     print(f"mAP50: {results.box.map50:.4f}")
     print(f"mAP50-95: {results.box.map:.4f}")
+
+    print("\n--- Metrics before pruning ---")
+    print(f"Parameters: {count_parameters(torch_model):,}")
+    count_flops(torch_model, example_input)
+    measure_memory(torch_model.to(device), example_input)
+
+    # print('\nPruing model...')
+    # pruned_torch_model = prune_yolo_model(torch_model, example_inputs=example_input, amount=0.5)
+    # print('Model pruned.')
+
+    print("\n--- Metrics after pruning ---")
+    print(f"Parameters: {count_parameters(pruned_torch_model):,}")
+    count_flops(pruned_torch_model, example_input)
+    measure_memory(pruned_torch_model.to(device), example_input)
 
     
 
