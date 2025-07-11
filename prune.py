@@ -18,9 +18,11 @@ def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
     
-    model = YOLO('./lg_model/trained_by_yolo11x.pt').to(device)
+    #model = YOLO('./lg_model/trained_by_yolo11x.pt').to(device)
+    model = YOLO('/home/pesquisador/pesquisa/filipe/model_compress/runs/train/yolo11_oxford_tower_custom_train/weights/best.pt').to(device)
     
-    results = model.val(data='data.yaml')
+
+    results = model.val(data='data.yaml', split='test')
     print(f'default mAP50-95: {results.box.map * 100} %')
 
     torch_model = model.model
@@ -36,7 +38,8 @@ def main():
     print('Pruned model saved.')
 
     model = YOLO('pruned_trained_by_yolo11x.pt')
-    results = model.val(data='data.yaml')
+    # results = model.val(data='data.yaml')
+    results = model.val(data='data.yaml', split='test')
     print(f'Pruned mAP50-95 {(results.box.map * 100)} %')
 
 if __name__ == "__main__":
