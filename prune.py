@@ -32,7 +32,7 @@ def main():
     torch_model = model.model
 
     print('Pruing model...')
-    pruned_torch_model = prune_model(torch_model, amount=0.15)
+    pruned_torch_model = prune_model(torch_model, amount=0.5)
     # prune.ln_structured(module, name='weight', amount=0.5, n=2, dim=0)  # remove 50% dos filtros
     print('Model pruned.')
 
