@@ -81,10 +81,19 @@ def main():
     print(f"mAP50: {results.box.map50:.4f}")
     print(f"mAP50-95: {results.box.map:.4f}")
 
+    
+
     torch_model = model.model
 
     # Define dummy input for tracing
     example_input = torch.randn(1, 3, 640, 640).to(device)
+
+    print("\n--- Metrics before pruning ---")
+    print(f"Parameters: {count_parameters(torch_model):,}")
+    count_flops(torch_model)
+    measure_memory(torch_model.to(device), example_input)
+
+    
 
     print('Pruing model...')
     # pruned_torch_model = prune_yolo_model(torch_model, amount=0.5)
@@ -98,7 +107,7 @@ def main():
     model.save('pruned_trained_by_yolo11x.pt')
     print('Pruned model saved.')
 
-    model = YOLO('pruned_trained_by_yolo11x.pt')
+    # model = YOLO('pruned_trained_by_yolo11x.pt')
 
     # print('Exporting to TorchScript...')
     # # example_input = torch.randn(1, 3, 640, 640).to(device)
@@ -113,10 +122,7 @@ def main():
     print(f"mAP50: {results.box.map50:.4f}")
     print(f"mAP50-95: {results.box.map:.4f}")
 
-    print("\n--- Metrics before pruning ---")
-    print(f"Parameters: {count_parameters(torch_model):,}")
-    count_flops(torch_model)
-    measure_memory(torch_model.to(device), example_input)
+    
 
     # print('\nPruing model...')
     # pruned_torch_model = prune_yolo_model(torch_model, example_inputs=example_input, amount=0.5)
