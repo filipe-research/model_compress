@@ -100,12 +100,12 @@ def main():
 
     model = YOLO('pruned_trained_by_yolo11x.pt')
 
-    print('Exporting to TorchScript...')
-    # example_input = torch.randn(1, 3, 640, 640).to(device)
-    example_input = torch.randn(8, 3, 640, 640).to(device)
-    traced_model = torch.jit.trace(pruned_torch_model.to(device), example_input)
-    traced_model.save('pruned_trained_by_yolo11x_scripted.pt')
-    print('TorchScript export complete.')
+    # print('Exporting to TorchScript...')
+    # # example_input = torch.randn(1, 3, 640, 640).to(device)
+    # example_input = torch.randn(8, 3, 640, 640).to(device)
+    # traced_model = torch.jit.trace(pruned_torch_model.to(device), example_input)
+    # traced_model.save('pruned_trained_by_yolo11x_scripted.pt')
+    # print('TorchScript export complete.')
 
     # results = model.val(data='data.yaml')
     results = model.val(data='data.yaml', split='test')
