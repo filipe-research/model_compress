@@ -23,8 +23,9 @@ def prune_yolo_model(model, example_inputs, amount=0.5):
 
     for m in model.modules():
         if isinstance(m, torch.nn.Conv2d):
-            strategy = tp.strategy.LNStrategy(2)  # L2 norm pruning
-            pruning_idxs = strategy(m.weight, amount=amount)
+            # strategy = tp.strategy.LNStrategy(2)  # L2 norm pruning
+            # pruning_idxs = strategy(m.weight, amount=amount)
+            pruning_idxs = tp.strategy.ln_structured(m.weight, amount=amount, n=2, dim=0)
             if pruning_idxs.numel() == 0:
                 continue
             plan = DG.get_pruning_plan(m, tp.prune_conv_out_channel, pruning_idxs)
