@@ -24,6 +24,21 @@ def count_parameters(model):
     print(f"Total parameters: {num:,}")
     return num
 
+def prune_backbone(backbone, example_inputs, amount=0.5):
+    backbone.eval()
+    importance = tp.importance.MagnitudeImportance(p=2)
+
+    pruner = tp.pruner.MagnitudePruner(
+        backbone,
+        example_inputs=example_inputs,
+        importance=importance,
+        pruning_ratio=amount
+    )
+    pruner.step()
+
+    print("✅ Backbone pruning complete!")
+    return backbone
+
 
 
 def count_flops(model, input_res=(3, 640, 640)):
@@ -88,16 +103,37 @@ def main():
     # Define dummy input for tracing
     example_input = torch.randn(1, 3, 640, 640).to(device)
 
-    print("\n--- Metrics before pruning ---")
-    print(f"Parameters: {count_parameters(torch_model):,}")
-    count_flops(torch_model)
-    measure_memory(torch_model.to(device), example_input)
+    # print("\n--- Metrics before pruning ---")
+    # print(f"Parameters: {count_parameters(torch_model):,}")
+    # count_flops(torch_model)
+    # measure_memory(torch_model.to(device), example_input)
 
     
 
-    print('Pruing model...')
+    # print('Pruing model...')
     # pruned_torch_model = prune_yolo_model(torch_model, amount=0.5)
-    pruned_torch_model = prune_yolo_model(torch_model, example_inputs=example_input, amount=0.9)
+    # pruned_torch_model = prune_yolo_model(torch_model, example_inputs=example_input, amount=0.9)
+
+    # Get backbone
+    backbone = torch_model.model[0]
+
+    print("\n--- Metrics before pruning ---")
+    print(f"Parameters: {count_parameters(backbone):,}")
+    count_flops(backbone)
+    measure_memory(backbone.to(device), example_input)
+
+    print('\nPruning backbone...')
+    pruned_backbone = prune_backbone(backbone, example_inputs=example_input, amount=0.5)
+    print('✅ Backbone pruned.')
+
+    print("\n--- Metrics after pruning ---")
+    print(f"Parameters: {count_parameters(pruned_backbone):,}")
+    count_flops(pruned_backbone)
+    measure_memory(pruned_backbone.to(device), example_input)
+
+    # Replace backbone in full model
+    torch_model.model[0] = pruned_backbone
+
     # prune.ln_structured(module, name='weight', amount=0.5, n=2, dim=0)  # remove 50% dos filtros
     print('Model pruned.')
 
@@ -127,10 +163,10 @@ def main():
     # pruned_torch_model = prune_yolo_model(torch_model, example_inputs=example_input, amount=0.5)
     # print('Model pruned.')
 
-    print("\n--- Metrics after pruning ---")
-    print(f"Parameters: {count_parameters(pruned_torch_model):,}")
-    count_flops(pruned_torch_model)
-    measure_memory(pruned_torch_model.to(device), example_input)
+    # print("\n--- Metrics after pruning ---")
+    # print(f"Parameters: {count_parameters(pruned_torch_model):,}")
+    # count_flops(pruned_torch_model)
+    # measure_memory(pruned_torch_model.to(device), example_input)
 
     
 
