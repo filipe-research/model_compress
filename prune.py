@@ -23,17 +23,17 @@ def prune_yolo_model(model, example_inputs, amount=0.5):
 
     for m in model.modules():
         if isinstance(m, torch.nn.Conv2d):
-            # strategy = tp.strategy.LNStrategy(2)  # L2 norm pruning
-            # pruning_idxs = strategy(m.weight, amount=amount)
-            # pruning_idxs = tp.strategy.ln_structured(m.weight, amount=amount, n=2, dim=0)
-                        # Use the new API directly without strategy attribute
-            # pruning_idxs = tp.ln_structured(m.weight, amount=amount, n=2, dim=0)
-            pruning_idxs = tp.utils.ln_norm_pruning(m.weight, amount=amount, n=2, dim=0)
-            if pruning_idxs.numel() == 0:
-                continue
-            plan = DG.get_pruning_plan(m, tp.prune_conv_out_channel, pruning_idxs)
-            plan.exec()
-            print(f"Pruned layer: {m}")
+            plan = DG.get_pruning_plan(
+                m,
+                tp.prune_conv_out_channel,
+                amount=amount,           # Fração a remover
+                strategy="ln_structured",  # Estratégia integrada
+                n=2,                       # L2 norm
+                dim=0                      # Remove filtros (saída)
+            )
+            if plan is not None:
+                plan.exec()
+                print(f"Pruned layer: {m}")
     return model
 
 def main():
