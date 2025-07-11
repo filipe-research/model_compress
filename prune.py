@@ -111,7 +111,7 @@ def main():
 
     print("\n--- Metrics before pruning ---")
     print(f"Parameters: {count_parameters(torch_model):,}")
-    count_flops(torch_model, example_input)
+    count_flops(torch_model)
     measure_memory(torch_model.to(device), example_input)
 
     # print('\nPruing model...')
@@ -120,7 +120,7 @@ def main():
 
     print("\n--- Metrics after pruning ---")
     print(f"Parameters: {count_parameters(pruned_torch_model):,}")
-    count_flops(pruned_torch_model, example_input)
+    count_flops(pruned_torch_model)
     measure_memory(pruned_torch_model.to(device), example_input)
 
     
