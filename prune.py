@@ -2,6 +2,7 @@ import torch
 import torch.nn.utils.prune as prune
 from ultralytics import YOLO
 import torch_pruning as tp
+from ptflops import get_model_complexity_info
 
 # def prune_model(model, amount=0.3):
 #     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -20,9 +21,19 @@ import torch_pruning as tp
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
-def count_flops(model, example_input):
-    flops = tp.utils.count_ops(model, example_input)
-    print(f"Total FLOPs: {flops / 1e9:.2f} GFLOPs")
+
+
+def count_flops(model, input_res=(3, 640, 640)):
+    with torch.cuda.device(0):
+        macs, params = get_model_complexity_info(
+            model, 
+            input_res,
+            as_strings=True,
+            print_per_layer_stat=False,
+            verbose=False
+        )
+    print(f"FLOPs (MACs): {macs}")
+    print(f"Parameters: {params}")
 
 def measure_memory(model, example_input):
     import gc
