@@ -20,22 +20,21 @@ import torch_pruning as tp
 def prune_yolo_model(model, example_inputs, amount=0.5):
     model.eval()
 
-    DG = tp.DependencyGraph().build_dependency(model, example_inputs=example_inputs)
+    # 1️⃣ Define a estratégia de importância
+    importance = tp.importance.MagnitudeImportance(p=2)
 
-    # Defina a estratégia de pruning (L2 norm, estruturado)
-    strategy = tp.strategy.LNStrategy(amount=amount, n=2, dim=0)
+    # 2️⃣ Cria o pruner com o modelo, input, importância e target ratio
+    pruner = tp.pruner.MagnitudePruner(
+        model,
+        example_inputs=example_inputs,
+        importance=importance,
+        pruning_ratio=amount
+    )
 
-    for m in model.modules():
-        if isinstance(m, torch.nn.Conv2d):
-            pruning_group = DG.get_pruning_group(
-                m,
-                tp.prune_conv_out_channels,
-                strategy=strategy
-            )
-            if pruning_group is not None:
-                pruning_group.prune()
-                print(f"Pruned layer: {m}")
+    # 3️⃣ Executa o pruning
+    pruner.step()
 
+    print("Pruning complete with MagnitudePruner.")
     return model
 
 def main():
