@@ -23,7 +23,9 @@ def main():
     
 
     results = model.val(data='data.yaml', split='test')
-    print(f'default mAP50-95: {results.box.map * 100} %')
+    # print(f'default mAP50-95: {results.box.map * 100} %')
+    print(f"mAP50: {results.box.map50:.4f}")
+    print(f"mAP50-95: {results.box.map:.4f}")
 
     torch_model = model.model
 
@@ -40,7 +42,9 @@ def main():
     model = YOLO('pruned_trained_by_yolo11x.pt')
     # results = model.val(data='data.yaml')
     results = model.val(data='data.yaml', split='test')
-    print(f'Pruned mAP50-95 {(results.box.map * 100)} %')
+    # print(f'Pruned mAP50-95 {(results.box.map * 100)} %'
+    print(f"mAP50: {results.box.map50:.4f}")
+    print(f"mAP50-95: {results.box.map:.4f}")
 
 if __name__ == "__main__":
     main()
