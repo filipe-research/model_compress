@@ -73,7 +73,7 @@ def main():
     print(f"Using device: {device}")
     
     #model = YOLO('./lg_model/trained_by_yolo11x.pt').to(device)
-    model = YOLO('/home/pesquisador/pesquisa/filipe/model_compress/runs/train/yolo11_oxford_tower_custom_train/weights/best.pt').to(device)
+    model = YOLO('/home/pesquisador/pesquisa/filipe/model_compress/runs/train/yolo11_oxford_tower_custom_train2/weights/best.pt').to(device)
     
 
     results = model.val(data='data.yaml', split='test')
