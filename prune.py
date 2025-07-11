@@ -97,7 +97,7 @@ def main():
 
     print('Pruing model...')
     # pruned_torch_model = prune_yolo_model(torch_model, amount=0.5)
-    pruned_torch_model = prune_yolo_model(torch_model, example_inputs=example_input, amount=0.5)
+    pruned_torch_model = prune_yolo_model(torch_model, example_inputs=example_input, amount=0.8)
     # prune.ln_structured(module, name='weight', amount=0.5, n=2, dim=0)  # remove 50% dos filtros
     print('Model pruned.')
 
