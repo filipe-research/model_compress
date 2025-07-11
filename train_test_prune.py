@@ -4,7 +4,16 @@ import torch
 num_epochs = 100
 imgsz = 640
 
-model = YOLO("pruned_model_for_finetune.pt")
+PRUNED_BACKBONE_WEIGHTS = "pruned_model_for_finetune.pt"
+
+model = YOLO("yolo11m.pt")
+
+# 2️⃣ Substitui o backbone com os pesos podados
+print('Loading pruned backbone weights...')
+backbone = model.model.model[0]
+backbone.load_state_dict(torch.load(PRUNED_BACKBONE_WEIGHTS))
+print('✅ Pruned backbone loaded.')
+
 
 model.train(
         data="./data.yaml",
