@@ -68,11 +68,20 @@ def main():
     print('Pruned model saved.')
 
     model = YOLO('pruned_trained_by_yolo11x.pt')
+
+    print('Exporting to TorchScript...')
+    example_input = torch.randn(1, 3, 640, 640).to(device)
+    traced_model = torch.jit.trace(pruned_torch_model.to(device), example_input)
+    traced_model.save('pruned_trained_by_yolo11x_scripted.pt')
+    print('TorchScript export complete.')
+    
     # results = model.val(data='data.yaml')
     results = model.val(data='data.yaml', split='test')
     # print(f'Pruned mAP50-95 {(results.box.map * 100)} %'
     print(f"mAP50: {results.box.map50:.4f}")
     print(f"mAP50-95: {results.box.map:.4f}")
+
+    
 
 if __name__ == "__main__":
     main()
