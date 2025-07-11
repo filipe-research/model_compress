@@ -19,7 +19,10 @@ from ptflops import get_model_complexity_info
 #     return model
 
 def count_parameters(model):
-    return sum(p.numel() for p in model.parameters() if p.requires_grad)
+    # return sum(p.numel() for p in model.parameters() if p.requires_grad)
+    num = sum(p.numel() for p in model.parameters())
+    print(f"Total parameters: {num:,}")
+    return num
 
 
 
@@ -98,7 +101,8 @@ def main():
     model = YOLO('pruned_trained_by_yolo11x.pt')
 
     print('Exporting to TorchScript...')
-    example_input = torch.randn(1, 3, 640, 640).to(device)
+    # example_input = torch.randn(1, 3, 640, 640).to(device)
+    example_input = torch.randn(8, 3, 640, 640).to(device)
     traced_model = torch.jit.trace(pruned_torch_model.to(device), example_input)
     traced_model.save('pruned_trained_by_yolo11x_scripted.pt')
     print('TorchScript export complete.')
