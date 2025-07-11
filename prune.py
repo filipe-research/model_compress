@@ -141,7 +141,8 @@ def main():
     # Replace backbone in full model
     torch_model.model[0] = pruned_backbone
     # torch.save(torch_model.state_dict(), 'backbone_pruned_weights.pt')
-    torch.save(torch_model, 'pruned_model_for_finetune.pt')
+    # torch.save(torch_model, 'pruned_model_for_finetune.pt')
+    torch.save(pruned_backbone.state_dict(), 'pruned_model_for_finetune.pt')
     print('✅ Saved pruned backbone weights.')
 
     # prune.ln_structured(module, name='weight', amount=0.5, n=2, dim=0)  # remove 50% dos filtros
