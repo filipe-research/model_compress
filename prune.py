@@ -27,7 +27,7 @@ def prune_yolo_model(model, example_inputs, amount=0.5):
             # Cria o pruning group com a nova API
             pruning_group = DG.get_pruning_group(
                 m,
-                tp.prune_conv_out_channel,
+                tp.prune_conv_out_channels,
                 amount=amount,
                 strategy="ln_structured",
                 n=2,
