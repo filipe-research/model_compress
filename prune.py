@@ -54,7 +54,7 @@ def count_flops(model, input_res=(3, 640, 640)):
             verbose=False
         )
     print(f"FLOPs (MACs): {macs}")
-    print(f"Parameters: {params}")
+    # print(f"Parameters: {params}")
 
 def measure_memory(model, example_input):
     import gc
@@ -160,9 +160,9 @@ def main():
     # print('TorchScript export complete.')
 
     # results = model.val(data='data.yaml')
-    # results = model.val(data='data.yaml', split='test')
-    # print(f"mAP50: {results.box.map50:.4f}")
-    # print(f"mAP50-95: {results.box.map:.4f}")
+    results = model.val(data='data.yaml', split='test')
+    print(f"mAP50: {results.box.map50:.4f}")
+    print(f"mAP50-95: {results.box.map:.4f}")
 
     
 
