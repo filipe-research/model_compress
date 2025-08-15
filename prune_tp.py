@@ -322,7 +322,7 @@ def prune(args):
     # load trained yolov8 model
     # model = YOLO(args.model)
     
-    model = YOLO('/home/pesquisador/pesquisa/filipe/model_compress/runs/train/yolo11_oxford_tower_pruned_train/weights/best.pt')
+    model = YOLO('/home/pesquisador/pesquisa/filipe/model_compress/runs/train/yolo11_oxford_tower_custom_train2/weights/best.pt')
     model.__setattr__("train_v2", train_v2.__get__(model))
     
     pruning_cfg = yaml_load(check_yaml(args.cfg))
