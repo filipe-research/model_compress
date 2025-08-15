@@ -335,13 +335,14 @@ def prune(args):
     
     pruning_cfg = yaml_load(check_yaml(args.cfg))
     #batch_size = pruning_cfg['batch']
-    batch_size = 16
+    batch_size = 2
 
     # use coco128 dataset for 10 epochs fine-tuning each pruning iteration step
     # this part is only for sample code, number of epochs should be included in config file
     pruning_cfg['data'] = "data.yaml"
     #pruning_cfg['data'] = "coco128.yaml"
     pruning_cfg['epochs'] = 10
+    
 
     model.model.train()
     replace_c2f_with_c2f_v2(model.model)
@@ -358,8 +359,9 @@ def prune(args):
     # do validation before pruning model
     pruning_cfg['name'] = f"baseline_val"
     pruning_cfg['batch'] = 1
-    validation_model = deepcopy(model)
-    metric = validation_model.val(**pruning_cfg)
+    # validation_model = deepcopy(model)
+    # metric = validation_model.val(**pruning_cfg)
+    metric = model.val(**pruning_cfg)
     init_map = metric.box.map
     macs_list.append(base_macs)
     nparams_list.append(100)
@@ -402,8 +404,9 @@ def prune(args):
         # pre fine-tuning validation
         pruning_cfg['name'] = f"step_{i}_pre_val"
         pruning_cfg['batch'] = 1
-        validation_model.model = deepcopy(model.model)
-        metric = validation_model.val(**pruning_cfg)
+        # validation_model.model = deepcopy(model.model)
+        # metric = validation_model.val(**pruning_cfg)
+        metric = model.val(**pruning_cfg)
         pruned_map = metric.box.map
         pruned_macs, pruned_nparams = tp.utils.count_ops_and_params(pruner.model, example_inputs.to(model.device))
         current_speed_up = float(macs_list[0]) / pruned_macs
@@ -432,6 +435,7 @@ def prune(args):
 
         # remove pruner after single iteration
         del pruner
+        gc.collect()
 
         save_pruning_performance_graph(nparams_list, map_list, macs_list, pruned_map_list)
 
