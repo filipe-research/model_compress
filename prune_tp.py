@@ -30,14 +30,33 @@ except Exception:
 # Ultralytics import compatibility (older: ultralytics.yolo.*, newer: ultralytics.engine.* / ultralytics.utils)
 try:
     from ultralytics.yolo.engine.trainer import BaseTrainer
-    from ultralytics.yolo.utils import yaml_load, LOGGER, RANK, DEFAULT_CFG_DICT, DEFAULT_CFG_KEYS
+    from ultralytics.yolo.utils import LOGGER, RANK, DEFAULT_CFG_DICT, DEFAULT_CFG_KEYS
     from ultralytics.yolo.utils.checks import check_yaml
     from ultralytics.yolo.utils.torch_utils import initialize_weights, de_parallel
 except Exception:
     from ultralytics.engine.trainer import BaseTrainer
-    from ultralytics.utils import yaml_load, LOGGER, RANK, DEFAULT_CFG_DICT, DEFAULT_CFG_KEYS
+    from ultralytics.utils import LOGGER, RANK
+    try:
+        from ultralytics.utils import DEFAULT_CFG_DICT, DEFAULT_CFG_KEYS
+    except Exception:
+        DEFAULT_CFG_DICT, DEFAULT_CFG_KEYS = {}, set()
     from ultralytics.utils.checks import check_yaml
     from ultralytics.utils.torch_utils import initialize_weights, de_parallel
+
+# Try to import yaml_load from any known location; if unavailable, define a local fallback
+try:
+    from ultralytics.yolo.utils import yaml_load  # older layouts
+except Exception:
+    try:
+        from ultralytics.utils import yaml_load  # some versions re-export here
+    except Exception:
+        try:
+            from ultralytics.utils.files import yaml_load  # newer split
+        except Exception:
+            def yaml_load(file):
+                import yaml
+                with open(file, 'r') as f:
+                    return yaml.safe_load(f)
 
 # (optional, used later) keep Model import from newer layout if available
 try:
