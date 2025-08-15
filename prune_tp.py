@@ -312,9 +312,17 @@ def train_v2(self: YOLO, pruning=False, **kwargs):
     self.trainer.hub_session = self.session  # attach optional HUB session
     self.trainer.train()
     # Update model and cfg after training
+    # if RANK in (-1, 0):
+    #     self.model, _ = attempt_load_one_weight(str(self.trainer.best))
+    #     self.overrides = self.model.args
+    #     self.metrics = getattr(self.trainer.validator, 'metrics', None)
     if RANK in (-1, 0):
-        self.model, _ = attempt_load_one_weight(str(self.trainer.best))
-        self.overrides = self.model.args
+        if attempt_load_one_weight is not None:
+            self.model, _ = attempt_load_one_weight(str(self.trainer.best))
+        else:
+            # Fallback for newer Ultralytics where attempt_load_one_weight may not exist
+            self.model = YOLO(str(self.trainer.best)).model
+        self.overrides = getattr(self.model, 'args', {})
         self.metrics = getattr(self.trainer.validator, 'metrics', None)
 
 
