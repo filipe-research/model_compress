@@ -380,6 +380,7 @@ def prune(args):
 
         ignored_layers = []
         unwrapped_parameters = []
+        import pdb; pdb.set_trace()
         for m in model.model.modules():
             if isinstance(m, (Detect,)):
                 ignored_layers.append(m)
@@ -394,7 +395,7 @@ def prune(args):
             ignored_layers=ignored_layers,
             unwrapped_parameters=unwrapped_parameters
         )
-
+        import pdb; pdb.set_trace()
         # Test regularization
         #output = model.model(example_inputs)
         #(output[0].sum() + sum([o.sum() for o in output[1]])).backward()
@@ -412,13 +413,14 @@ def prune(args):
         current_speed_up = float(macs_list[0]) / pruned_macs
         print(f"After pruning iter {i + 1}: MACs={pruned_macs / 1e9} G, #Params={pruned_nparams / 1e6} M, "
               f"mAP={pruned_map}, speed up={current_speed_up}")
-
+        import pdb; pdb.set_trace()
         # fine-tuning
         for name, param in model.model.named_parameters():
             param.requires_grad = True
         pruning_cfg['name'] = f"step_{i}_finetune"
         pruning_cfg['batch'] = batch_size  # restore batch size
         model.train_v2(pruning=True, **pruning_cfg)
+        import pdb; pdb.set_trace()
 
         # post fine-tuning validation
         pruning_cfg['name'] = f"step_{i}_post_val"
