@@ -359,9 +359,9 @@ def prune(args):
     # do validation before pruning model
     pruning_cfg['name'] = f"baseline_val"
     pruning_cfg['batch'] = 1
-    # validation_model = deepcopy(model)
-    # metric = validation_model.val(**pruning_cfg)
-    metric = model.val(**pruning_cfg)
+    validation_model = deepcopy(model)
+    metric = validation_model.val(**pruning_cfg)
+    # metric = model.val(**pruning_cfg)
     init_map = metric.box.map
     macs_list.append(base_macs)
     nparams_list.append(100)
