@@ -6,12 +6,15 @@ imgsz = 640
 
 PRUNED_BACKBONE_WEIGHTS = "pruned_model_for_finetune.pt"
 
-model = YOLO("yolo11m.pt")
+# model = YOLO("yolo11m.pt")
 
 # 2️⃣ Substitui o backbone com os pesos podados
 print('Loading pruned backbone weights...')
-backbone = model.model.model[0]
-backbone.load_state_dict(torch.load(PRUNED_BACKBONE_WEIGHTS))
+# backbone = model.model.model[0]
+# backbone.load_state_dict(torch.load(PRUNED_BACKBONE_WEIGHTS))
+
+# Carrega modelo PyTorch inteiro já podado
+torch_model = torch.load("pruned_model_for_finetune.pt")
 print('✅ Pruned backbone loaded.')
 
 
