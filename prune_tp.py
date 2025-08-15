@@ -13,27 +13,38 @@ import torch.nn as nn
 from matplotlib import pyplot as plt
 from ultralytics import YOLO, __version__
 from ultralytics.nn.modules import Detect, C2f, Conv, Bottleneck
-from ultralytics.nn.tasks import attempt_load_one_weight
+# from ultralytics.nn.tasks import attempt_load_one_weight
 # from ultralytics.yolo.engine.model import TASK_MAP
-from ultralytics.engine.model import Model
-from ultralytics.yolo.engine.trainer import BaseTrainer
-from ultralytics.yolo.utils import yaml_load, LOGGER, RANK, DEFAULT_CFG_DICT, DEFAULT_CFG_KEYS
-from ultralytics.yolo.utils.checks import check_yaml
-from ultralytics.yolo.utils.torch_utils import initialize_weights, de_parallel
+# from ultralytics.engine.model import Model
+# from ultralytics.yolo.engine.trainer import BaseTrainer
+# from ultralytics.yolo.utils import yaml_load, LOGGER, RANK, DEFAULT_CFG_DICT, DEFAULT_CFG_KEYS
+# from ultralytics.yolo.utils.checks import check_yaml
+# from ultralytics.yolo.utils.torch_utils import initialize_weights, de_parallel
 
-# Ultralytics import compatibility shim (v8/v11 vs newer layouts)
-# try:
-#     from ultralytics.yolo.engine.model import TASK_MAP
-#     from ultralytics.yolo.engine.trainer import BaseTrainer
-#     from ultralytics.yolo.utils import yaml_load, LOGGER, RANK, DEFAULT_CFG_DICT, DEFAULT_CFG_KEYS
-#     from ultralytics.yolo.utils.checks import check_yaml
-#     from ultralytics.yolo.utils.torch_utils import initialize_weights, de_parallel
-# except Exception:
-#     from ultralytics.engine.model import TASK_MAP
-#     from ultralytics.engine.trainer import BaseTrainer
-#     from ultralytics.utils import yaml_load, LOGGER, RANK, DEFAULT_CFG_DICT, DEFAULT_CFG_KEYS
-#     from ultralytics.utils.checks import check_yaml
-#     from ultralytics.utils.torch_utils import initialize_weights, de_parallel
+# attempt_load_one_weight moved across versions; make it optional
+try:
+    from ultralytics.nn.tasks import attempt_load_one_weight
+except Exception:
+    attempt_load_one_weight = None
+
+# Ultralytics import compatibility (older: ultralytics.yolo.*, newer: ultralytics.engine.* / ultralytics.utils)
+try:
+    from ultralytics.yolo.engine.trainer import BaseTrainer
+    from ultralytics.yolo.utils import yaml_load, LOGGER, RANK, DEFAULT_CFG_DICT, DEFAULT_CFG_KEYS
+    from ultralytics.yolo.utils.checks import check_yaml
+    from ultralytics.yolo.utils.torch_utils import initialize_weights, de_parallel
+except Exception:
+    from ultralytics.engine.trainer import BaseTrainer
+    from ultralytics.utils import yaml_load, LOGGER, RANK, DEFAULT_CFG_DICT, DEFAULT_CFG_KEYS
+    from ultralytics.utils.checks import check_yaml
+    from ultralytics.utils.torch_utils import initialize_weights, de_parallel
+
+# (optional, used later) keep Model import from newer layout if available
+try:
+    from ultralytics.engine.model import Model
+except Exception:
+    Model = None
+
 
 import torch_pruning as tp
 
