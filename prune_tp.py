@@ -300,6 +300,7 @@ def prune(args):
     macs_list, nparams_list, map_list, pruned_map_list = [], [], [], []
     base_macs, base_nparams = tp.utils.count_ops_and_params(model.model, example_inputs)
 
+
     # do validation before pruning model
     pruning_cfg['name'] = f"baseline_val"
     pruning_cfg['batch'] = 1
